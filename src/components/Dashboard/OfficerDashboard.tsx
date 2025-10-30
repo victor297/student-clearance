@@ -79,7 +79,7 @@ const OfficerDashboard: React.FC = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/upload/eligible",
+        "https://student-clearance-i1lk.onrender.com/api/upload/eligible",
         {
           method: "POST",
           headers: {
@@ -104,7 +104,7 @@ const OfficerDashboard: React.FC = () => {
   const fetchDocuments = async (requestId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/upload/documents/${requestId}?department=${user?.officer_department}`,
+        `https://student-clearance-i1lk.onrender.com/api/upload/documents/${requestId}?department=${user?.officer_department}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -649,7 +649,7 @@ const OfficerDashboard: React.FC = () => {
                         </div>
                         <div className="mt-3">
                           <a
-                            href={`http://localhost:5000${doc.file_url}`}
+                            href={`https://student-clearance-i1lk.onrender.com${doc.file_url}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center justify-center px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-xs sm:text-sm w-full sm:w-auto"

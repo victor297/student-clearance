@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = "https://student-clearance-i1lk.onrender.com/api";
 
 interface User {
   _id: string;
@@ -32,29 +32,31 @@ const initialState: UserState = {
 
 // Async thunks
 export const getAllUsers = createAsyncThunk(
-  'user/getAllUsers',
-  async ({ role, department }: { role?: string; department?: string } = {}, { getState }) => {
+  "user/getAllUsers",
+  async (
+    { role, department }: { role?: string; department?: string } = {},
+    { getState }
+  ) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const params = new URLSearchParams();
-    if (role) params.append('role', role);
-    if (department) params.append('department', department);
-    
-    const response = await axios.get(
-      `${API_URL}/users?${params.toString()}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    if (role) params.append("role", role);
+    if (department) params.append("department", department);
+
+    const response = await axios.get(`${API_URL}/users?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return response.data;
   }
 );
 
 export const getOfficersByDepartment = createAsyncThunk(
-  'user/getOfficersByDepartment',
+  "user/getOfficersByDepartment",
   async (department: string, { getState }) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const response = await axios.get(
       `${API_URL}/users/officers/${department}`,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -64,11 +66,14 @@ export const getOfficersByDepartment = createAsyncThunk(
 );
 
 export const updateUserEligibility = createAsyncThunk(
-  'user/updateEligibility',
-  async ({ userId, is_eligible }: { userId: string; is_eligible: boolean }, { getState }) => {
+  "user/updateEligibility",
+  async (
+    { userId, is_eligible }: { userId: string; is_eligible: boolean },
+    { getState }
+  ) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const response = await axios.patch(
       `${API_URL}/users/${userId}/eligibility`,
       { is_eligible },
@@ -79,14 +84,18 @@ export const updateUserEligibility = createAsyncThunk(
 );
 
 export const updateUserRole = createAsyncThunk(
-  'user/updateRole',
+  "user/updateRole",
   async (
-    { userId, role, officer_department }: { userId: string; role: string; officer_department?: string },
+    {
+      userId,
+      role,
+      officer_department,
+    }: { userId: string; role: string; officer_department?: string },
     { getState }
   ) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const response = await axios.patch(
       `${API_URL}/users/${userId}/role`,
       { role, officer_department },
@@ -97,21 +106,20 @@ export const updateUserRole = createAsyncThunk(
 );
 
 export const deleteUser = createAsyncThunk(
-  'user/deleteUser',
+  "user/deleteUser",
   async (userId: string, { getState }) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
-    await axios.delete(
-      `${API_URL}/users/${userId}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+
+    await axios.delete(`${API_URL}/users/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return userId;
   }
 );
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -125,22 +133,30 @@ const userSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(getAllUsers.fulfilled, (state, action: PayloadAction<User[]>) => {
-        state.loading = false;
-        state.users = action.payload;
-      })
+      .addCase(
+        getAllUsers.fulfilled,
+        (state, action: PayloadAction<User[]>) => {
+          state.loading = false;
+          state.users = action.payload;
+        }
+      )
       .addCase(getAllUsers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch users';
+        state.error = action.error.message || "Failed to fetch users";
       })
       // Get officers by department
-      .addCase(getOfficersByDepartment.fulfilled, (state, action: PayloadAction<User[]>) => {
-        state.officers = action.payload;
-      })
+      .addCase(
+        getOfficersByDepartment.fulfilled,
+        (state, action: PayloadAction<User[]>) => {
+          state.officers = action.payload;
+        }
+      )
       // Update eligibility
       .addCase(updateUserEligibility.fulfilled, (state, action) => {
         const updatedUser = action.payload.user;
-        const index = state.users.findIndex(user => user._id === updatedUser._id);
+        const index = state.users.findIndex(
+          (user) => user._id === updatedUser._id
+        );
         if (index !== -1) {
           state.users[index] = updatedUser;
         }
@@ -148,14 +164,16 @@ const userSlice = createSlice({
       // Update role
       .addCase(updateUserRole.fulfilled, (state, action) => {
         const updatedUser = action.payload.user;
-        const index = state.users.findIndex(user => user._id === updatedUser._id);
+        const index = state.users.findIndex(
+          (user) => user._id === updatedUser._id
+        );
         if (index !== -1) {
           state.users[index] = updatedUser;
         }
       })
       // Delete user
       .addCase(deleteUser.fulfilled, (state, action: PayloadAction<string>) => {
-        state.users = state.users.filter(user => user._id !== action.payload);
+        state.users = state.users.filter((user) => user._id !== action.payload);
       });
   },
 });

@@ -1,13 +1,13 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = "https://student-clearance-i1lk.onrender.com/api";
 
 interface Notification {
   _id: string;
   message: string;
-  type: 'clearance_status' | 'new_request' | 'approval_required';
-  status: 'unread' | 'read';
+  type: "clearance_status" | "new_request" | "approval_required";
+  status: "unread" | "read";
   createdAt: string;
   related_request?: any;
 }
@@ -28,24 +28,24 @@ const initialState: NotificationState = {
 
 // Async thunks
 export const getNotifications = createAsyncThunk(
-  'notifications/getNotifications',
+  "notifications/getNotifications",
   async (_, { getState }) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const response = await axios.get(`${API_URL}/notifications`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
   }
 );
 
 export const markAsRead = createAsyncThunk(
-  'notifications/markAsRead',
+  "notifications/markAsRead",
   async (notificationId: string, { getState }) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const response = await axios.patch(
       `${API_URL}/notifications/${notificationId}/read`,
       {},
@@ -56,11 +56,11 @@ export const markAsRead = createAsyncThunk(
 );
 
 export const markAllAsRead = createAsyncThunk(
-  'notifications/markAllAsRead',
+  "notifications/markAllAsRead",
   async (_, { getState }) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     await axios.patch(
       `${API_URL}/notifications/read-all`,
       {},
@@ -71,20 +71,20 @@ export const markAllAsRead = createAsyncThunk(
 );
 
 export const getUnreadCount = createAsyncThunk(
-  'notifications/getUnreadCount',
+  "notifications/getUnreadCount",
   async (_, { getState }) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const response = await axios.get(`${API_URL}/notifications/unread-count`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
   }
 );
 
 const notificationSlice = createSlice({
-  name: 'notifications',
+  name: "notifications",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -97,18 +97,23 @@ const notificationSlice = createSlice({
       .addCase(getNotifications.pending, (state) => {
         state.loading = true;
       })
-      .addCase(getNotifications.fulfilled, (state, action: PayloadAction<Notification[]>) => {
-        state.loading = false;
-        state.notifications = action.payload;
-      })
+      .addCase(
+        getNotifications.fulfilled,
+        (state, action: PayloadAction<Notification[]>) => {
+          state.loading = false;
+          state.notifications = action.payload;
+        }
+      )
       .addCase(getNotifications.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch notifications';
+        state.error = action.error.message || "Failed to fetch notifications";
       })
       // Mark as read
       .addCase(markAsRead.fulfilled, (state, action) => {
         const updatedNotification = action.payload.notification;
-        const index = state.notifications.findIndex(n => n._id === updatedNotification._id);
+        const index = state.notifications.findIndex(
+          (n) => n._id === updatedNotification._id
+        );
         if (index !== -1) {
           state.notifications[index] = updatedNotification;
           state.unreadCount = Math.max(0, state.unreadCount - 1);
@@ -116,15 +121,18 @@ const notificationSlice = createSlice({
       })
       // Mark all as read
       .addCase(markAllAsRead.fulfilled, (state) => {
-        state.notifications.forEach(notification => {
-          notification.status = 'read';
+        state.notifications.forEach((notification) => {
+          notification.status = "read";
         });
         state.unreadCount = 0;
       })
       // Get unread count
-      .addCase(getUnreadCount.fulfilled, (state, action: PayloadAction<{ count: number }>) => {
-        state.unreadCount = action.payload.count;
-      });
+      .addCase(
+        getUnreadCount.fulfilled,
+        (state, action: PayloadAction<{ count: number }>) => {
+          state.unreadCount = action.payload.count;
+        }
+      );
   },
 });
 

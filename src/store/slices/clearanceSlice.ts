@@ -1,20 +1,20 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = "https://student-clearance-i1lk.onrender.com/api";
 
 interface ClearanceRequest {
   _id: string;
   student_id: any;
   departments: {
     [key: string]: {
-      status: 'pending' | 'approved' | 'rejected';
+      status: "pending" | "approved" | "rejected";
       officer_id?: string;
       comments?: string;
       timestamp?: string;
     };
   };
-  overall_status: 'pending' | 'approved' | 'rejected';
+  overall_status: "pending" | "approved" | "rejected";
   current_stage: string;
   submitted_at: string;
   completed_at?: string;
@@ -39,11 +39,11 @@ const initialState: ClearanceState = {
 
 // Async thunks
 export const createClearanceRequest = createAsyncThunk(
-  'clearance/createRequest',
+  "clearance/createRequest",
   async (requestData: { reason: string }, { getState }) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const response = await axios.post(
       `${API_URL}/clearance/request`,
       requestData,
@@ -54,40 +54,44 @@ export const createClearanceRequest = createAsyncThunk(
 );
 
 export const getMyRequests = createAsyncThunk(
-  'clearance/getMyRequests',
+  "clearance/getMyRequests",
   async (_, { getState }) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const response = await axios.get(`${API_URL}/clearance/my-requests`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
   }
 );
 
 export const getPendingRequests = createAsyncThunk(
-  'clearance/getPendingRequests',
+  "clearance/getPendingRequests",
   async (_, { getState }) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const response = await axios.get(`${API_URL}/clearance/pending`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
   }
 );
 
 export const updateRequestStatus = createAsyncThunk(
-  'clearance/updateStatus',
+  "clearance/updateStatus",
   async (
-    { requestId, status, comments }: { requestId: string; status: string; comments?: string },
+    {
+      requestId,
+      status,
+      comments,
+    }: { requestId: string; status: string; comments?: string },
     { getState }
   ) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const response = await axios.patch(
       `${API_URL}/clearance/${requestId}/status`,
       { status, comments },
@@ -98,15 +102,18 @@ export const updateRequestStatus = createAsyncThunk(
 );
 
 export const getAllRequests = createAsyncThunk(
-  'clearance/getAllRequests',
-  async ({ status, department }: { status?: string; department?: string } = {}, { getState }) => {
+  "clearance/getAllRequests",
+  async (
+    { status, department }: { status?: string; department?: string } = {},
+    { getState }
+  ) => {
     const state = getState() as any;
     const token = state.auth.token;
-    
+
     const params = new URLSearchParams();
-    if (status) params.append('status', status);
-    if (department) params.append('department', department);
-    
+    if (status) params.append("status", status);
+    if (department) params.append("department", department);
+
     const response = await axios.get(
       `${API_URL}/clearance/all?${params.toString()}`,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -116,7 +123,7 @@ export const getAllRequests = createAsyncThunk(
 );
 
 const clearanceSlice = createSlice({
-  name: 'clearance',
+  name: "clearance",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -135,31 +142,38 @@ const clearanceSlice = createSlice({
       })
       .addCase(createClearanceRequest.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to create request';
+        state.error = action.error.message || "Failed to create request";
       })
       // Get my requests
       .addCase(getMyRequests.pending, (state) => {
         state.loading = true;
       })
-      .addCase(getMyRequests.fulfilled, (state, action: PayloadAction<ClearanceRequest[]>) => {
-        state.loading = false;
-        state.myRequests = action.payload;
-      })
+      .addCase(
+        getMyRequests.fulfilled,
+        (state, action: PayloadAction<ClearanceRequest[]>) => {
+          state.loading = false;
+          state.myRequests = action.payload;
+        }
+      )
       .addCase(getMyRequests.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch requests';
+        state.error = action.error.message || "Failed to fetch requests";
       })
       // Get pending requests
       .addCase(getPendingRequests.pending, (state) => {
         state.loading = true;
       })
-      .addCase(getPendingRequests.fulfilled, (state, action: PayloadAction<ClearanceRequest[]>) => {
-        state.loading = false;
-        state.pendingRequests = action.payload;
-      })
+      .addCase(
+        getPendingRequests.fulfilled,
+        (state, action: PayloadAction<ClearanceRequest[]>) => {
+          state.loading = false;
+          state.pendingRequests = action.payload;
+        }
+      )
       .addCase(getPendingRequests.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch pending requests';
+        state.error =
+          action.error.message || "Failed to fetch pending requests";
       })
       // Update status
       .addCase(updateRequestStatus.fulfilled, (state) => {
@@ -167,13 +181,16 @@ const clearanceSlice = createSlice({
       })
       .addCase(updateRequestStatus.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to update status';
+        state.error = action.error.message || "Failed to update status";
       })
       // Get all requests
-      .addCase(getAllRequests.fulfilled, (state, action: PayloadAction<ClearanceRequest[]>) => {
-        state.loading = false;
-        state.requests = action.payload;
-      });
+      .addCase(
+        getAllRequests.fulfilled,
+        (state, action: PayloadAction<ClearanceRequest[]>) => {
+          state.loading = false;
+          state.requests = action.payload;
+        }
+      );
   },
 });
 
