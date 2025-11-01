@@ -82,16 +82,13 @@ const AdminDashboard: React.FC = () => {
     try {
       const endpoint =
         type === "students" ? "/api/upload/students" : "/api/upload/eligible";
-      const response = await fetch(
-        `https://student-clearance-i1lk.onrender.com${endpoint}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: formData,
-        }
-      );
+      const response = await fetch(` http://localhost:5000${endpoint}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
+      });
 
       const result = await response.json();
       console.log("Upload result:", result);
@@ -160,21 +157,18 @@ const AdminDashboard: React.FC = () => {
   const handleCreateOfficer = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(
-        "https://student-clearance-i1lk.onrender.com/api/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            ...createOfficerData,
-            role: "officer",
-            password: createOfficerData.lastname.toLowerCase(),
-          }),
-        }
-      );
+      const response = await fetch(" http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          ...createOfficerData,
+          role: "officer",
+          password: createOfficerData.lastname.toLowerCase(),
+        }),
+      });
 
       if (response.ok) {
         setShowCreateOfficerModal(false);

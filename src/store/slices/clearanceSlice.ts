@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://student-clearance-i1lk.onrender.com/api";
+const API_URL = " http://localhost:5000/api";
 
 interface ClearanceRequest {
   _id: string;
