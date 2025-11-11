@@ -42,6 +42,8 @@ const OfficerDashboard: React.FC = () => {
   const [selectedRequestForDocs, setSelectedRequestForDocs] = useState<
     string | null
   >(null);
+  const [submitting, setSubmitting] = useState(false);
+
   const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
 
   const { register, handleSubmit, reset, watch } = useForm<ReviewFormData>();
@@ -53,6 +55,7 @@ const OfficerDashboard: React.FC = () => {
 
   const onSubmit = async (data: ReviewFormData) => {
     if (!selectedRequest) return;
+    setSubmitting(true); // Start loading
 
     try {
       await dispatch(
@@ -68,9 +71,10 @@ const OfficerDashboard: React.FC = () => {
       dispatch(getPendingRequests());
     } catch (error) {
       console.error("Failed to update request status:", error);
+    } finally {
+      setSubmitting(false); // Stop loading
     }
   };
-
   const handleEligibleListUpload = async () => {
     if (!selectedFile) return;
 
@@ -79,7 +83,7 @@ const OfficerDashboard: React.FC = () => {
 
     try {
       const response = await fetch(
-        " http://localhost:5000/api/upload/eligible",
+        "https://student-clearance-one.vercel.app/api/upload/eligible",
         {
           method: "POST",
           headers: {
@@ -104,7 +108,7 @@ const OfficerDashboard: React.FC = () => {
   const fetchDocuments = async (requestId: string) => {
     try {
       const response = await fetch(
-        ` http://localhost:5000/api/upload/documents/${requestId}?department=${user?.officer_department}`,
+        ` https://student-clearance-one.vercel.app/api/upload/documents/${requestId}?department=${user?.officer_department}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -308,10 +312,6 @@ const OfficerDashboard: React.FC = () => {
                 <option value={user?.officer_department}>My Department</option>
               </select>
             </div>
-            <button className="inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200 text-xs sm:text-sm">
-              <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-              <span className="hidden sm:inline">Export</span>
-            </button>
           </div>
         </div>
       </div>
@@ -513,29 +513,60 @@ const OfficerDashboard: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3">
+                        <div className="flex justify-end space-x-3">
                           <button
                             type="button"
                             onClick={() => {
                               setSelectedRequest(null);
                               reset();
                             }}
-                            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200 text-sm order-2 sm:order-1"
+                            disabled={submitting}
+                            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition disabled:opacity-50"
                           >
                             Cancel
                           </button>
+
                           <button
                             type="submit"
-                            disabled={loading}
-                            className={`px-6 py-2 text-white rounded-md transition-colors duration-200 text-sm order-1 sm:order-2 ${
-                              watchStatus === "approved"
-                                ? "bg-green-600 hover:bg-green-700"
-                                : watchStatus === "rejected"
-                                ? "bg-red-600 hover:bg-red-700"
-                                : "bg-gray-400 cursor-not-allowed"
-                            }`}
+                            disabled={submitting || !watchStatus}
+                            className={`px-6 py-2 text-white rounded-md transition duration-200 flex items-center justify-center
+                ${
+                  watchStatus === "approved"
+                    ? "bg-green-600 hover:bg-green-700"
+                    : watchStatus === "rejected"
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-gray-400 cursor-not-allowed"
+                }
+                ${submitting ? "opacity-75 cursor-wait" : ""}
+              `}
                           >
-                            {loading ? "Processing..." : "Submit Review"}
+                            {submitting ? (
+                              <>
+                                <svg
+                                  className="animate-spin h-4 w-4 mr-2 text-white"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  ></circle>
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                  ></path>
+                                </svg>
+                                Processing...
+                              </>
+                            ) : (
+                              "Submit Review"
+                            )}
                           </button>
                         </div>
                       </form>
@@ -649,7 +680,7 @@ const OfficerDashboard: React.FC = () => {
                         </div>
                         <div className="mt-3">
                           <a
-                            href={` http://localhost:5000${doc.file_url}`}
+                            href={` https://student-clearance-one.vercel.app${doc.file_url}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center justify-center px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-xs sm:text-sm w-full sm:w-auto"

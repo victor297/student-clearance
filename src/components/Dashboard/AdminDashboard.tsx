@@ -82,13 +82,16 @@ const AdminDashboard: React.FC = () => {
     try {
       const endpoint =
         type === "students" ? "/api/upload/students" : "/api/upload/eligible";
-      const response = await fetch(` http://localhost:5000${endpoint}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        ` https://student-clearance-one.vercel.app${endpoint}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: formData,
+        }
+      );
 
       const result = await response.json();
       console.log("Upload result:", result);
@@ -157,18 +160,21 @@ const AdminDashboard: React.FC = () => {
   const handleCreateOfficer = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(" http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          ...createOfficerData,
-          role: "officer",
-          password: createOfficerData.lastname.toLowerCase(),
-        }),
-      });
+      const response = await fetch(
+        " https://student-clearance-one.vercel.app/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            ...createOfficerData,
+            role: "officer",
+            password: createOfficerData.lastname.toLowerCase(),
+          }),
+        }
+      );
 
       if (response.ok) {
         setShowCreateOfficerModal(false);
@@ -370,10 +376,6 @@ const AdminDashboard: React.FC = () => {
             >
               <Upload className="h-4 w-4 mr-2" />
               Import Users
-            </button>
-            <button className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
-              <Download className="h-4 w-4 mr-2" />
-              Export
             </button>
           </div>
         </div>
