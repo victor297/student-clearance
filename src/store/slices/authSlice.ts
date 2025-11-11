@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "https://student-clearance-one.vercel.app/api";
+const API_URL = " https://student-clearance-one.vercel.app/api";
 
 interface User {
   id: string;
