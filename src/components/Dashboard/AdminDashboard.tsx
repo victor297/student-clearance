@@ -83,7 +83,7 @@ const AdminDashboard: React.FC = () => {
       const endpoint =
         type === "students" ? "/api/upload/students" : "/api/upload/eligible";
       const response = await fetch(
-        ` https://student-clearance-one.vercel.app${endpoint}`,
+        ` https://student-clearance-i1lk.onrender.com${endpoint}`,
         {
           method: "POST",
           headers: {
@@ -161,7 +161,7 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     try {
       const response = await fetch(
-        " https://student-clearance-one.vercel.app/api/auth/register",
+        " https://student-clearance-i1lk.onrender.com/api/auth/register",
         {
           method: "POST",
           headers: {

@@ -81,7 +81,7 @@ const StudentDashboard: React.FC = () => {
 
     try {
       const response = await fetch(
-        " https://student-clearance-one.vercel.app/api/upload/documents",
+        " https://student-clearance-i1lk.onrender.com/api/upload/documents",
         {
           method: "POST",
           headers: {
@@ -117,7 +117,7 @@ const StudentDashboard: React.FC = () => {
   const fetchDocuments = async (requestId: string) => {
     try {
       const response = await fetch(
-        ` https://student-clearance-one.vercel.app/api/upload/documents/${requestId}`,
+        ` https://student-clearance-i1lk.onrender.com/api/upload/documents/${requestId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -597,7 +597,7 @@ const StudentDashboard: React.FC = () => {
                         </div>
                         <div className="mt-3">
                           <a
-                            href={` https://student-clearance-one.vercel.app${doc.file_url}`}
+                            href={` https://student-clearance-i1lk.onrender.com${doc.file_url}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center justify-center px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors text-xs sm:text-sm w-full sm:w-auto"
